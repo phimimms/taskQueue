@@ -1,0 +1,22 @@
+{
+  "name": "taskqueue",
+  "version": "1.0.0",
+  "description": "A data structure constructor function to maintain the order of asynchronous function invocations",
+  "scripts": {
+    "test": "mocha --reporter spec taskQueue.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/phimimms/taskQueue.git"
+  },
+  "author": "Philippe Mimms",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/phimimms/taskQueue/issues"
+  },
+  "homepage": "https://github.com/phimimms/taskQueue#readme",
+  "dependencies": {
+    "expect": "^1.20.2",
+    "mocha": "^3.2.0"
+  }
+}
