@@ -1,0 +1,7 @@
+{
+    "name": "taskQueue",
+    "description": "A data structure constructor function to maintain the order of asynchronous function invocations",
+    "main": "taskQueue.js",
+    "moduleType": "node",
+    "authors": ["Philippe Mimms"]
+}
