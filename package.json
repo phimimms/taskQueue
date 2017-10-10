@@ -4,9 +4,9 @@
   "description": "A data structure to maintain the order of asynchronous function invocations",
   "scripts": {
     "build": "npm-run-all build:amd build:es6",
-    "build:amd": "babel taskQueue.js -o taskQueue.compiled-amd.js --plugins transform-es2015-modules-amd",
-    "build:es6": "babel taskQueue.js -o taskQueue.compiled.js",
-    "test": "mocha --compilers js:babel-core/register --reporter spec taskQueue.test.js"
+    "build:amd": "babel index.js -o dist/taskQueue.amd.js --plugins transform-es2015-modules-amd",
+    "build:es6": "babel index.js -o dist/taskQueue.js",
+    "test": "mocha --compilers js:babel-core/register --reporter spec index.test.js"
   },
   "repository": {
     "type": "git",

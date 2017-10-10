@@ -1,6 +1,6 @@
 import expect from 'expect';
 
-import TaskQueue from './taskQueue';
+import TaskQueue from './index';
 
 describe('Task Queue', () => {
   it('Append() Returns Promise', () => {
