@@ -1,58 +1,47 @@
-;(function(TaskQueue) {
-    if (typeof module === "object" && typeof module.exports === "object") {
-        /* CommonJS module. */
-        module.exports = TaskQueue();
-    } else if (typeof define === "function" && define.amd) {
-        /* AMD module. */
-        define(TaskQueue);
+export default class TaskQueue {
+  constructor() {
+    this._isDestroyed = false;
+    this._isPerformingTasks = false;
+    this._tasks = [];
+  }
+
+  append(...args) {
+    this._tasks.push(...args);
+
+    if (!this._isPerformingTasks) {
+      this._performTasks();
     }
-}(function() {
-        return function TaskQueue() {
-            /**
-             * Indicates whether the task queue has been destroyed
-             * @type    {Boolean}
-             */
-            this.isDestroyed = false;
+  }
 
-            /**
-             * The queue of functions to invoke
-             * @type    {Promise}
-             * @private
-             */
-            this._queue = Promise.resolve();
+  destroy() {
+    this._isDestroyed = true;
+    this._isPerformingTasks = false;
+    this._tasks = null;
+  }
 
-            /**
-             * Appends the function arguments to the task queue in the given order
-             * @type    {Function}
-             * @return  {Promise}
-             */
-            this.append = function() {
-                for (var i = 0, n = arguments.length; i < n; i++) {
-                    if (typeof arguments[i] !== 'function') {
-                        continue;
-                    }
-                    this._queue = this._queue.then(function(cb, val) {
-                        if (this.isDestroyed) {
-                            return val;
-                        }
-                        return cb(val);
-                    }.bind(this, arguments[i]));
-                }
+  _performTasks(arg) {
+    const task = this._tasks.pop();
 
-                return this._queue;
-            };
+    if (typeof task !== 'function') {
+      if (this._tasks.length) {
+        this._performTasks(arg);
+      }
+      return;
+    }
 
-            /**
-             * Dereferences instance properties and methods
-             * @type    {Function}
-             */
-            this.destroy = function() {
-                this.isDestroyed = true;
+    this._isPerformingTasks = true;
 
-                this.append = undefined;
-                this.destroy = undefined;
-                this._queue = undefined;
-            };
-        };
-    })
-);
+    Promise.resolve(task(arg))
+      .then((val) => {
+        if (this._isDestroyed) {
+          return;
+        }
+
+        if (this._tasks.length) {
+          this._performTasks(val);
+        }
+
+        this._isPerformingTasks = false;
+      });
+  }
+}
