@@ -59,7 +59,7 @@ export default class TaskQueue {
    * @private
    */
   _runTasks(arg) {
-    const task = this._tasks.pop();
+    const task = this._tasks.shift();
 
     if (typeof task !== 'function') {
       if (this._tasks.length) {
@@ -80,8 +80,7 @@ export default class TaskQueue {
         }
 
         if (this._tasks.length) {
-          this._runTasks(val);
-          return;
+          return this._runTasks(val);
         }
 
         this._isRunningTasks = false;

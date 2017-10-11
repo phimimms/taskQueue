@@ -94,7 +94,7 @@ define(['exports'], function (exports) {
       value: function _runTasks(arg) {
         var _this = this;
 
-        var task = this._tasks.pop();
+        var task = this._tasks.shift();
 
         if (typeof task !== 'function') {
           if (this._tasks.length) {
@@ -114,8 +114,7 @@ define(['exports'], function (exports) {
           }
 
           if (_this._tasks.length) {
-            _this._runTasks(val);
-            return;
+            return _this._runTasks(val);
           }
 
           _this._isRunningTasks = false;
