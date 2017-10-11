@@ -33,44 +33,80 @@ define(['exports'], function (exports) {
     function TaskQueue() {
       _classCallCheck(this, TaskQueue);
 
+      /**
+       * Indicates whether the task queue is destroyed.
+       * @type  {boolean}
+       */
       this._isDestroyed = false;
-      this._isPerformingTasks = false;
+
+      /**
+       * Indicates whether the task queue is actively running tasks.
+       * @type  {boolean}
+       */
+      this._isRunningTasks = false;
+
+      /**
+       * The list of asynchronous functions to be invoked in sequential order.
+       * @type  {Array.<Function>}
+       */
       this._tasks = [];
     }
 
+    /**
+     * Appends the provided list of functions to the task queue.
+     * @param {Array.<Function>}  args  A list of functions to be invoked in sequential order.
+     */
+
+
     _createClass(TaskQueue, [{
-      key: 'append',
-      value: function append() {
+      key: 'addTasks',
+      value: function addTasks() {
         var _tasks;
+
+        if (this._isDestroyed) {
+          return;
+        }
 
         (_tasks = this._tasks).push.apply(_tasks, arguments);
 
-        if (!this._isPerformingTasks) {
-          this._performTasks();
+        if (!this._isRunningTasks) {
+          this._runTasks();
         }
+      }
+    }, {
+      key: 'append',
+      value: function append() {
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+          args[_key] = arguments[_key];
+        }
+
+        this.addTasks(args);
       }
     }, {
       key: 'destroy',
       value: function destroy() {
         this._isDestroyed = true;
-        this._isPerformingTasks = false;
+        this._isRunningTasks = false;
         this._tasks = null;
       }
     }, {
-      key: '_performTasks',
-      value: function _performTasks(arg) {
+      key: '_runTasks',
+      value: function _runTasks(arg) {
         var _this = this;
 
         var task = this._tasks.pop();
 
         if (typeof task !== 'function') {
           if (this._tasks.length) {
-            this._performTasks(arg);
+            this._runTasks(arg);
+            return;
           }
+
+          this._isRunningTasks = false;
           return;
         }
 
-        this._isPerformingTasks = true;
+        this._isRunningTasks = true;
 
         Promise.resolve(task(arg)).then(function (val) {
           if (_this._isDestroyed) {
@@ -78,10 +114,11 @@ define(['exports'], function (exports) {
           }
 
           if (_this._tasks.length) {
-            _this._performTasks(val);
+            _this._runTasks(val);
+            return;
           }
 
-          _this._isPerformingTasks = false;
+          _this._isRunningTasks = false;
         });
       }
     }]);

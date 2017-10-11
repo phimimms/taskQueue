@@ -3,44 +3,44 @@ import expect from 'expect';
 import TaskQueue from './index';
 
 describe('Task Queue', () => {
-  it('Append() Returns Promise', () => {
+  it('addTasks() Returns Promise', () => {
     const t = new TaskQueue();
 
-    const p = t.append(() => {});
+    const p = t.addTasks(() => {});
 
-    expect(p).toBeA(Promise, 'append() did not return a Promise');
+    expect(p).toBeA(Promise, 'addTasks() did not return a Promise');
   });
 
-  it('Append() with No Arguments', (done) => {
+  it('addTasks() with No Arguments', (done) => {
     const t = new TaskQueue();
 
-    t.append().then(() => done());
+    t.addTasks().then(() => done());
   });
 
-  it('Append() with Immediate Return Value', (done) => {
+  it('addTasks() with Immediate Return Value', (done) => {
     const t = new TaskQueue();
 
-    t.append(() => 42)
+    t.addTasks(() => 42)
       .then((value) => {
-        expect(value).toEqual(42, 'An unexpected value was passed to the append() Promise');
+        expect(value).toEqual(42, 'An unexpected value was passed to the addTasks() Promise');
         done();
       });
   });
 
-  it('Append() with Promise Return Value', (done) => {
+  it('addTasks() with Promise Return Value', (done) => {
     const t = new TaskQueue();
 
-    t.append(() => Promise.resolve(42))
+    t.addTasks(() => Promise.resolve(42))
       .then((value) => {
-        expect(value).toEqual(42, 'An unexpected value was passed to the append() Promise');
+        expect(value).toEqual(42, 'An unexpected value was passed to the addTasks() Promise');
         done();
       });
   });
 
-  it('Append() with Multiple Function Arguments', (done) => {
+  it('addTasks() with Multiple Function Arguments', (done) => {
     const t = new TaskQueue();
 
-    t.append(
+    t.addTasks(
       () => 31,
       (value) => {
         expect(value).toEqual(31, 'An unexpected value was passed to the second function argument');
@@ -51,15 +51,15 @@ describe('Task Queue', () => {
         return 53;
       }
     ).then((value) => {
-      expect(value).toEqual(53, 'An unexpected value was passed to the append() resolution handler');
+      expect(value).toEqual(53, 'An unexpected value was passed to the addTasks() resolution handler');
       done();
     });
   });
 
-  it('Append() with Non-Function Arguments', (done) => {
+  it('addTasks() with Non-Function Arguments', (done) => {
     const t = new TaskQueue();
 
-    t.append(
+    t.addTasks(
       undefined,
       null,
       42,
@@ -68,27 +68,27 @@ describe('Task Queue', () => {
       ['some array'],
       Promise.resolve()
     ).then((value) => {
-      expect(value).toEqual(42, 'An unexpected value was passed to the append() resolution handler');
+      expect(value).toEqual(42, 'An unexpected value was passed to the addTasks() resolution handler');
       done();
     });
   });
 
-  it('Append() in Function Argument', (done) => {
+  it('addTasks() in Function Argument', (done) => {
     const t = new TaskQueue();
 
     let order = 1;
 
-    const appendToQueue = () => {
-      return t.append(() => {
+    const addTasksToQueue = () => {
+      return t.addTasks(() => {
         expect(order++).toEqual(3, 'The third callback was invoked in an unexpected order');
         done();
       });
     };
 
-    t.append(
+    t.addTasks(
       () => {
         expect(order++).toEqual(1, 'The first callback was invoked in an unexpected order');
-        appendToQueue();
+        addTasksToQueue();
       },
       () => {
         expect(order++).toEqual(2, 'The second callback was invoked in an unexpected order');
@@ -96,12 +96,12 @@ describe('Task Queue', () => {
     );
   });
 
-  it('Multiple Append() Invocations', (done) => {
+  it('Multiple addTasks() Invocations', (done) => {
     const t = new TaskQueue();
 
     let order = 1;
 
-    t.append(
+    t.addTasks(
       () => {
         expect(order++).toEqual(1, 'The first callback was invoked in an unexpected order');
       },
@@ -110,7 +110,7 @@ describe('Task Queue', () => {
       }
     );
 
-    t.append(() => {
+    t.addTasks(() => {
       expect(order++).toEqual(3, 'The third callback was invoked in an unexpected order');
       done();
     });
@@ -121,19 +121,17 @@ describe('Task Queue', () => {
 
     t1.destroy();
 
-    expect(t1.isDestroyed).toExist('isDestroyed was not updated');
-    expect(t1.append).toEqual(undefined, 'append() was not dereferenced');
-    expect(t1.destroy).toEqual(undefined, 'destroy() was not dereferenced');
-    expect(t1._queue).toEqual(undefined, '_queue was not dereferenced');
+    expect(t1._isDestroyed).toEqual(true, '_isDestroyed was not updated');
+    expect(t1._tasks).toEqual(null, '_tasks was not dereferenced');
 
     const t2 = new TaskQueue();
-    expect(t2.isDestroyed).toNotExist('Task Queue instantiated as destroyed');
+    expect(t2._isDestroyed).toEqual(false, 'The subsequent task queue instantiated as destroyed');
   });
 
   it('Destroy() Cancels Pending Functions', (done) => {
     const t = new TaskQueue();
 
-    t.append(
+    t.addTasks(
       () => {
         t.destroy();
         return 42;
@@ -142,7 +140,7 @@ describe('Task Queue', () => {
         expect(false).toExist('The canceled function was still invoked');
       }
     ).then((value) => {
-      expect(value).toEqual(42, 'An unexpected value was passed to the append() resolution handler');
+      expect(value).toEqual(42, 'An unexpected value was passed to the addTasks() resolution handler');
       done();
     });
   });
